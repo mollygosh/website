@@ -319,9 +319,10 @@
 
 @utility textile-sticky {
   position: sticky;
-  top: 0;
+  /* The header is a solid bar, so the artwork fills the screen below it. */
+  top: var(--header-height);
   display: grid;
-  height: 100svh;
+  height: calc(100svh - var(--header-height));
   place-items: center;
   overflow: hidden;
 }
@@ -602,11 +603,17 @@
   display: block;
   grid-area: 1 / 1;
   width: 100%;
-  height: auto;
+
+  & img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 
   &[data-active="false"] {
     visibility: hidden;
   }
+}
 }
 
 /* Zero-height sticky rail: the theme switch rides under the header while the artwork scrolls. */
@@ -890,6 +897,11 @@ h1 {
 
   .site-header-inner {
     padding-inline: 1.25rem;
+  }
+
+  .monogram {
+    width: 1.85rem;
+    height: calc(1.85rem * 608 / 672);
   }
 
   .primary-nav { gap: 1.4rem; }
@@ -1206,20 +1218,43 @@ h1 {
   .case-study-switch {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr;
-    width: 2.6rem;
-    height: 5.25rem;
+    width: 1.9rem;
+    height: 3.8rem;
+  }
+
+  .case-study-switch-icon svg {
+    width: 13px;
+    height: 13px;
   }
 
   .case-study-switch-thumb {
-    top: 0.25rem;
-    right: 0.25rem;
+    top: 0.2rem;
+    right: 0.2rem;
     bottom: auto;
-    left: 0.25rem;
+    left: 0.2rem;
     width: auto;
-    height: calc(50% - 0.25rem);
+    height: calc(50% - 0.2rem);
   }
 
   .case-study-switch[data-dark="true"] .case-study-switch-thumb {
     transform: translateY(100%);
+  }
+}
+
+/* Tall, narrow screens: the artwork uses the upper part of the stage and the sentences sit in a caption band below
+   it (TALL_ARTWORK_SHARE in connected-ui-scroll.tsx). */
+@media (max-aspect-ratio: 5/4) {
+  .connected-ui-sentence,
+  .connected-ui-sentence-primary,
+  .connected-ui-sentence-secondary {
+    top: auto;
+    bottom: calc(1.75rem + env(safe-area-inset-bottom, 0px));
+    right: 3%;
+    left: 3%;
+    width: auto;
+    max-width: none;
+    text-align: center;
+    font-size: clamp(1rem, calc(4.6 * var(--box-vw)), 1.5rem);
+    transform: none;
   }
 }

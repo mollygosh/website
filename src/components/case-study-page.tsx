@@ -97,16 +97,20 @@ export function CaseStudyPage() {
             </div>
             <div className="case-study-artworks">
               {study.artwork.map((item, index) => (
-                <img
+                <picture
                   key={item.url}
                   className="case-study-artwork"
                   data-active={item === artwork}
-                  src={item.url}
-                  width={item.width}
-                  height={item.height}
-                  alt={item === artwork ? `${study.title} case study` : ""}
                   aria-hidden={item === artwork ? undefined : true}
-                />
+                >
+                  {item.mobileUrl ? <source media="(max-width: 760px)" srcSet={item.mobileUrl} /> : null}
+                  <img
+                    src={item.url}
+                    width={item.width}
+                    height={item.height}
+                    alt={item === artwork ? `${study.title} case study` : ""}
+                  />
+                </picture>
               ))}
             </div>
           </>

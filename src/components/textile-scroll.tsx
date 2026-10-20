@@ -26,6 +26,38 @@ type ShapeData = {
   g: Uint8Array;
 };
 
+// The artwork is authored as checks, diamonds, zigzag, houndstooth. The patterns sit left to right as
+// checks (top left), houndstooth (bottom left), zigzag (bottom), diamonds (top right), so they are re-timed to
+// arrive in that order, and the zigzag and houndstooth build left to right within themselves.
+const GROUP_WINDOW: Record<number, [number, number]> = {
+  4: [0.34, 0.44],
+  3: [0.44, 0.86],
+  2: [0.86, 1.0],
+};
+const retimeLeftToRight = (json: RawShapeData): RawShapeData => {
+  const g = json.g ?? json.x.map(() => 0);
+  const span = new Map<number, [number, number]>();
+  json.t.forEach((t, i) => {
+    const group = g[i]!;
+    if (!(group in GROUP_WINDOW)) return;
+    const [lo, hi] = span.get(group) ?? [Infinity, -Infinity];
+    span.set(group, [Math.min(lo, t), Math.max(hi, t)]);
+  });
+  return {
+    ...json,
+    t: json.t.map((t, i) => {
+      const group = g[i]!;
+      const range = span.get(group);
+      const window = GROUP_WINDOW[group];
+      if (!range || !window) return t;
+      const along = (t - range[0]) / (range[1] - range[0] || 1);
+      // zigzag and houndstooth were authored right to left within themselves, so run them backwards
+      const ordered = group === 3 || group === 4 ? 1 - along : along;
+      return window[0] + ordered * (window[1] - window[0]);
+    }),
+  };
+};
+
 const toTyped = (json: RawShapeData): ShapeData => ({
   viewBox: json.viewBox,
   palette: json.palette,
@@ -41,6 +73,31 @@ const toTyped = (json: RawShapeData): ShapeData => ({
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3);
+const easeInOut = (p: number) => p * p * (3 - 2 * p);
+
+// Below this width : height the screen is "tall" and the artwork pans instead of shrinking to fit.
+const TALL_ASPECT = 1.25;
+
+// [scroll progress, horizontal centre of the view in artwork units]
+// Each shape takes IN_DUR to settle after its start time, so the camera stays on a group until it has landed.
+const CAMERA_PATH: [number, number][] = [
+  [0.0, 300],
+  [0.16, 260],
+  [0.26, 210],
+  [0.3, 700],
+  [0.467, 1240],
+  [1, 1240],
+];
+const cameraCentre = (prog: number) => {
+  for (let i = 1; i < CAMERA_PATH.length; i++) {
+    const [p1, x1] = CAMERA_PATH[i]!;
+    if (prog <= p1) {
+      const [p0, x0] = CAMERA_PATH[i - 1]!;
+      return x0 + (x1 - x0) * easeInOut(clamp01((prog - p0) / (p1 - p0)));
+    }
+  }
+  return CAMERA_PATH[CAMERA_PATH.length - 1]![1];
+};
 
 const BUILD_SPAN = 0.45; // arrivals spread across this much of the section
 const IN_DUR = 0.08;
@@ -77,7 +134,7 @@ export function TextileScroll() {
     fetch("/textile-shapes.json")
       .then((res) => res.json())
       .then((json: RawShapeData) => {
-        if (alive) dataRef.current = toTyped(json);
+        if (alive) dataRef.current = toTyped(retimeLeftToRight(json));
       })
       .catch(() => undefined);
     return () => {
@@ -120,10 +177,26 @@ export function TextileScroll() {
 
       const prog = progressRef.current;
       const [vw, vh] = data.viewBox;
-      // Fit the whole artwork (all four patterns) inside the screen, on every screen size.
-      const scale = Math.min(width / vw, height / vh);
-      const offX = (width - vw * scale) / 2;
-      const offY = (height - vh * scale) / 2;
+      // Wide screens fit the whole artwork (all four patterns) inside the screen. On tall, narrow screens the
+      // artwork fills the full height instead and the view pans across it as the patterns arrive (left to right).
+      const tall = width / height < TALL_ASPECT;
+      let scale: number;
+      let offX: number;
+      let offY: number;
+      if (tall) {
+        scale = height / vh;
+        // The camera follows the patterns in the order they arrive: checks (top left), diamonds (top right),
+        // zigzag (bottom, right to left), then houndstooth (bottom left).
+        const centre = cameraCentre(prog);
+        const visible = width / scale;
+        const clamped = Math.min(Math.max(centre, visible / 2), Math.max(visible / 2, vw - visible / 2));
+        offX = width / 2 - clamped * scale;
+        offY = 0;
+      } else {
+        scale = Math.min(width / vw, height / vh);
+        offX = (width - vw * scale) / 2;
+        offY = (height - vh * scale) / 2;
+      }
 
       ctx.clearRect(0, 0, width, height);
       if (prog <= 0 || prog >= 1) return;
@@ -159,12 +232,12 @@ export function TextileScroll() {
             dx -= fall * (110 + seed * 240);
             dy += Math.sin(seed * 7.3) * fall * 45;
           } else if (group === 3) {
-            // zigzag: slides in from the right with a slight lift
-            dx += fall * (120 + seed * 260);
+            // zigzag: slides in from the left with a slight lift
+            dx -= fall * (120 + seed * 260);
             dy -= Math.sin(seed * 9.1) * fall * 40;
           } else if (group === 4) {
-            // houndstooth: drifts in from the zigzag on its right
-            dx += fall * (90 + seed * 200);
+            // houndstooth: drifts in from the left
+            dx -= fall * (90 + seed * 200);
             dy += Math.sin(seed * 11.7) * fall * 35;
           } else {
             // scatter + checks: rain down from above

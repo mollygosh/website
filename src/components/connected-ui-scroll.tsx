@@ -5,6 +5,23 @@ import { connectedUiVector } from "@/lib/assets";
 const VIEWBOX_WIDTH = 1325;
 const VIEWBOX_HEIGHT = 861;
 const FORMATION_START = 0.03;
+// Tall, narrow screens show the interface in parts: a camera at about twice the old size follows the build
+// (left half, then right half, then back along the bottom) and pulls back to the whole loop at the end.
+const TALL_ASPECT = 1.25;
+const PART_WIDTH = 700;
+const TALL_ARTWORK_SHARE = 0.78;
+const PULLBACK_START = 0.84;
+const PULLBACK_END = 0.93;
+// [progress, horizontal centre in artwork units]
+const CAMERA_PATH: [number, number][] = [
+  [0, 350],
+  [0.3, 350],
+  [0.37, 975],
+  [0.6, 975],
+  [0.67, 350],
+  [0.82, 800],
+  [1, 800],
+];
 const FORMATION_FOREGROUND_END = 0.99;
 const FORMATION_COMPLETE = 0.8;
 const FIRST_SENTENCE_FADE_END = 0.83;
@@ -20,6 +37,8 @@ const CURIOSITY_LINES = [
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const easeOut = (value: number) => 1 - Math.pow(1 - value, 3);
+const smooth = (value: number) => value * value * (3 - 2 * value);
+const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
 
 type Bounds = readonly [x: number, y: number, width: number, height: number];
 
@@ -158,6 +177,39 @@ export function ConnectedUiScroll() {
     let artworkOffsetY = 0;
     let progress = 0;
     let frame = 0;
+    let tall = false;
+
+    const cameraCentre = () => {
+      for (let index = 1; index < CAMERA_PATH.length; index++) {
+        const [end, endX] = CAMERA_PATH[index]!;
+        if (progress <= end) {
+          const [start, startX] = CAMERA_PATH[index - 1]!;
+          return lerp(startX, endX, smooth(clamp01((progress - start) / (end - start))));
+        }
+      }
+      return CAMERA_PATH[CAMERA_PATH.length - 1]![1];
+    };
+
+    const placeArtwork = (svg: SVGElement | null) => {
+      if (!svg) return;
+      if (!tall) {
+        svg.style.cssText = "";
+        return;
+      }
+      const stageHeight = height * TALL_ARTWORK_SHARE;
+      const partScale = Math.min(width / PART_WIDTH, stageHeight / VIEWBOX_HEIGHT);
+      const wholeScale = Math.min((width * 0.94) / VIEWBOX_WIDTH, stageHeight / VIEWBOX_HEIGHT);
+      const pullback = reduced
+        ? Number(progress >= PULLBACK_START)
+        : smooth(clamp01((progress - PULLBACK_START) / (PULLBACK_END - PULLBACK_START)));
+      const scale = lerp(partScale, wholeScale, pullback);
+      const half = width / 2 / scale;
+      const centre = lerp(Math.min(Math.max(cameraCentre(), half), VIEWBOX_WIDTH - half), VIEWBOX_WIDTH / 2, pullback);
+      artworkScale = scale;
+      artworkOffsetX = width / 2 - centre * scale;
+      artworkOffsetY = (stageHeight - VIEWBOX_HEIGHT * scale) / 2;
+      svg.style.cssText = `position:absolute;top:0;left:0;width:${VIEWBOX_WIDTH}px;height:${VIEWBOX_HEIGHT}px;max-width:none;max-height:none;transform-origin:0 0;transform:translate(${artworkOffsetX}px,${artworkOffsetY}px) scale(${scale});`;
+    };
 
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -168,8 +220,10 @@ export function ConnectedUiScroll() {
       canvas.height = Math.round(height * ratio);
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
+      tall = width / height < TALL_ASPECT;
       const svg = artwork.querySelector("svg");
-      if (svg) {
+      placeArtwork(svg);
+      if (svg && !tall) {
         const svgBounds = svg.getBoundingClientRect();
         artworkScale = svgBounds.width / VIEWBOX_WIDTH;
         artworkOffsetX = svgBounds.left - bounds.left;
@@ -192,6 +246,7 @@ export function ConnectedUiScroll() {
     const draw = () => {
       frame = requestAnimationFrame(draw);
       context.clearRect(0, 0, width, height);
+      if (tall) placeArtwork(artwork.querySelector("svg"));
 
       STAGES.forEach((stage, index) => {
         // Finish every complete SVG group before beginning the next one.

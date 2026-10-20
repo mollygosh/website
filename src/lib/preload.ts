@@ -17,7 +17,8 @@ export const decodeImage = (url: string) => {
 
 export const preloadCaseStudy = (slug: string) => {
   const study = caseStudies.find((item) => item.slug === slug);
-  return Promise.all((study?.artwork ?? []).map((item) => decodeImage(item.url)));
+  const phone = window.matchMedia("(max-width: 760px)").matches;
+  return Promise.all((study?.artwork ?? []).map((item) => decodeImage(phone && item.mobileUrl ? item.mobileUrl : item.url)));
 };
 
 /** What a destination needs on screen before its transition should start. */
