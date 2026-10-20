@@ -614,7 +614,6 @@
     visibility: hidden;
   }
 }
-}
 
 /* Zero-height sticky rail: the theme switch rides under the header while the artwork scrolls. */
 @utility case-study-controls {
