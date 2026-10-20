@@ -1,0 +1,1225 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --font-display: var(--display-font);
+  --font-sans: var(--sans-font);
+}
+
+:root {
+  --background: oklch(0.075 0.012 285);
+  --foreground: oklch(0.88 0.008 285);
+  --muted-foreground: oklch(0.64 0.01 285);
+  --primary: oklch(0.79 0.18 188);
+  --primary-foreground: oklch(0.075 0.012 285);
+  --border: oklch(0.24 0.02 285);
+  --systems: oklch(0.68 0.22 325);
+  --craft: oklch(0.7 0.19 35);
+  --curiosity: oklch(0.78 0.16 185);
+  --ui-purple: #713f7c;
+  --ui-rose: #c65a63;
+  --ui-blue: #4a69a8;
+  --ui-teal: #58a095;
+  --works-surface: oklch(0.965 0.018 300 / 92%);
+  --works-ink: oklch(0.13 0.014 285);
+  --works-line: oklch(1 0 0 / 45%);
+  --works-purple-wash: oklch(0.82 0.09 320 / 22%);
+  --works-rose-wash: oklch(0.86 0.08 25 / 18%);
+  --works-teal-wash: oklch(0.88 0.06 185 / 14%);
+  --works-gradient-start: oklch(0.42 0.17 292);
+  --works-gradient-mid: oklch(0.45 0.19 326);
+  --works-gradient-end: oklch(0.47 0.18 30);
+  --header-glass: var(--background);
+  --about-header-glass: var(--about-surface);
+  --about-surface: #fdfcfd;
+  --site-max-width: 90rem;
+  --site-outer: var(--background);
+  --site-outer-light: var(--about-surface);
+  --overlay-scrollbar: 0px;
+  --header-height: clamp(5rem, 9.4vh, 7rem);
+  /* 1vw, but never wider than the site box, so the layout scales with the box instead of the window. */
+  --box-vw: min(1vw, calc(var(--site-max-width) / 100));
+  --page-header-gap: 24px;
+  --personal-narrative-gradient-start: #62376c;
+  --personal-narrative-gradient-mid: #87407e;
+  --personal-narrative-gradient-end: #aa4868;
+  --display-font: "Asul", Georgia, "Times New Roman", serif;
+  --editorial-font: "Marion", "Asul", Georgia, "Times New Roman", serif;
+  --sans-font: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html {
+    /* Everything is sized in rem, so beyond 2000px wide the whole layout grows with the screen
+       (a 4K display is ~2.4x a 1080p one) instead of sitting small inside a fixed-size box. */
+    font-size: max(16px, calc(16px + (100vw - 2000px) * 0.012));
+    scroll-behavior: smooth;
+    background: var(--site-outer);
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--site-outer);
+    color: var(--foreground);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@keyframes polygon-drift {
+  0% { transform: translate3d(0, 0.75rem, 0) rotate(-2deg); }
+  100% { transform: translate3d(-0.55rem, -2.25rem, 0) rotate(1.5deg); }
+}
+
+@utility portfolio-page {
+  min-height: 205vh;
+  background: var(--site-outer);
+}
+
+@utility site-header {
+  position: fixed;
+  z-index: 80;
+  top: 0;
+  right: var(--overlay-scrollbar);
+  left: 0;
+  height: var(--header-height);
+  background: var(--header-glass);
+  transition: background-color 420ms ease, color 420ms ease;
+
+  &[data-about-active="true"] {
+    color: var(--works-ink);
+    background: var(--about-header-glass);
+
+    & .monogram {
+      background-color: var(--works-ink);
+    }
+
+    & .nav-link::before {
+      color: var(--works-ink);
+      -webkit-text-fill-color: var(--works-ink);
+    }
+  }
+}
+
+.site-header:not([data-about-active="true"]) .site-header-inner {
+  max-width: none;
+}
+
+@utility site-header-inner {
+  display: flex;
+  max-width: var(--site-max-width);
+  height: 100%;
+  margin-inline: auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1.8rem, calc(3.6 * var(--box-vw)), 4.35rem) 0 clamp(1.8rem, calc(2.35 * var(--box-vw)), 2.85rem);
+}
+
+@utility portfolio-content {
+  position: relative;
+  width: 100%;
+  background: var(--background);
+}
+
+/* Work and case study artwork is pure white, so the header takes that exact white rather than the About surface. */
+.portfolio-page:has(.work-page[data-work-open="true"], .case-study-page[data-case-open="true"]) .site-header {
+  background: #fff;
+}
+
+.portfolio-page:has(.about-page[data-about-open="true"]) .site-header {
+  color: var(--works-ink);
+  background: var(--about-header-glass);
+
+  & .monogram {
+    background-color: var(--works-ink);
+  }
+
+  & .nav-link::before {
+    color: var(--works-ink);
+    -webkit-text-fill-color: var(--works-ink);
+  }
+}
+
+.portfolio-page:has(.play-page[data-play-open="true"]) .site-header {
+  color: var(--works-ink);
+  background: var(--about-header-glass);
+
+  & .monogram {
+    background-color: var(--works-ink);
+  }
+
+  & .nav-link::before {
+    color: var(--works-ink);
+    -webkit-text-fill-color: var(--works-ink);
+  }
+}
+
+/* The M knot mark: solid by default. On hover the gradient wipes in over it, like the nav links. The solid colour is
+   the element's own background, so the logo never depends on an overlay to stay solid (e.g. mid page transition). */
+@utility monogram {
+  position: relative;
+  display: block;
+  width: 2.5rem;
+  height: calc(2.5rem * 608 / 672);
+  background-color: var(--foreground);
+  -webkit-mask: url("/assets/m-knot-mark.svg") center / contain no-repeat;
+  mask: url("/assets/m-knot-mark.svg") center / contain no-repeat;
+
+  &::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background-image: linear-gradient(90deg, var(--systems) 0%, var(--craft) 100%);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Just clicked and still under the pointer: stay in the resting look until the pointer leaves. */
+.monogram[data-pressed="true"]:hover::before {
+  clip-path: inset(0 100% 0 0);
+}
+
+.nav-link[data-pressed="true"]:hover::before {
+  clip-path: inset(0 0 0 0);
+}
+
+@utility primary-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, calc(3.1 * var(--box-vw)), 3.75rem);
+}
+
+@utility nav-link {
+  position: relative;
+  padding: 0.7rem 0;
+  font-family: var(--sans-font);
+  font-size: clamp(0.78rem, calc(0.78 * var(--box-vw)), 0.94rem);
+  font-weight: 500;
+  text-transform: uppercase;
+  background-image: linear-gradient(90deg, var(--systems) 0%, var(--craft) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  &::before {
+    position: absolute;
+    inset: 0.7rem 0;
+    content: attr(data-text);
+    color: var(--foreground);
+    -webkit-text-fill-color: var(--foreground);
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@utility intro {
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  background: var(--background);
+}
+
+@utility intro-copy {
+  position: absolute;
+  z-index: 10;
+  top: 36.5%;
+  left: clamp(2.3rem, calc(5.2 * var(--box-vw)), 6.25rem);
+  transform: translateY(-8%);
+  font-family: var(--display-font);
+}
+
+@utility intro-kicker {
+  margin: 0 0 0.45rem;
+  font-size: clamp(1.55rem, calc(2.25 * var(--box-vw)), 2.7rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+@utility intro-statement {
+  margin: clamp(2.7rem, calc(5 * var(--box-vw)), 5.5rem) 0 0;
+  max-width: 51rem;
+  font-size: clamp(1.15rem, calc(1.85 * var(--box-vw)), 2.2rem);
+  font-weight: 400;
+  line-height: 1.32;
+  color: color-mix(in oklab, var(--foreground) 86%, transparent);
+}
+
+@utility word-systems { color: var(--systems); }
+@utility word-craft { color: var(--craft); }
+@utility word-curiosity { color: var(--curiosity); }
+
+@utility artwork {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+@utility portrait {
+  position: absolute;
+  z-index: 2;
+  right: -0.5%;
+  bottom: -0.3%;
+  height: min(calc(80.5 * var(--box-vw)), 82.8svh);
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: right bottom;
+  opacity: var(--portrait-opacity);
+  transition: opacity 80ms linear;
+}
+
+@utility polygon-field {
+  position: absolute;
+  z-index: 1;
+  top: -11svh;
+  right: 28%;
+  width: clamp(19.5rem, calc(31 * var(--box-vw)), 37rem);
+  max-width: none;
+  clip-path: inset(0 12% 0 0);
+  opacity: var(--polygon-opacity);
+  translate: 0 calc(var(--polygon-lift) * 1rem);
+  animation: polygon-drift 8s ease-in-out infinite alternate;
+  transition: opacity 80ms linear, translate 80ms linear;
+}
+
+@utility textile-section {
+  position: relative;
+  z-index: 3;
+  height: 320vh;
+  margin-top: -72svh;
+}
+
+@utility textile-sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  height: 100svh;
+  place-items: center;
+  overflow: hidden;
+}
+
+@utility textile-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@utility textile-sentence {
+  position: relative;
+  z-index: 2;
+  max-width: 46rem;
+  margin: 0;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-family: var(--display-font);
+  font-size: clamp(1.15rem, calc(1.85 * var(--box-vw)), 2.2rem);
+  font-weight: 400;
+  line-height: 1.32;
+  color: color-mix(in oklab, var(--foreground) 86%, transparent);
+}
+
+@utility textile-sentence-line {
+  display: block;
+  white-space: nowrap;
+}
+
+@utility textile-word {
+  display: inline-block;
+  margin-right: 0.32em;
+  will-change: opacity, transform, filter;
+}
+
+@utility black-continuation {
+  position: relative;
+  min-height: 105vh;
+  background: var(--background);
+}
+
+.work-page[data-work-open="false"] {
+  display: none;
+}
+
+.work-page[data-work-open="true"] {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  height: 100svh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  background: #fff;
+  color: var(--works-ink);
+}
+
+/* The supplied listing artwork is 1440 wide with its own top spacing, so it sits flush under the header. */
+@utility work-page-box {
+  width: 100%;
+  max-width: var(--site-max-width);
+  min-height: 100%;
+  margin-inline: auto;
+  /* The listing artwork starts its eyebrow text 98 / 1440 of its width down (40 / 680 as one column on phones);
+     leave just the --page-header-gap under the header. */
+  --listing-eyebrow-offset: calc(98 / 1440 * 100 * var(--box-vw));
+  padding-top: max(0px, calc(var(--header-height) + var(--page-header-gap) - var(--listing-eyebrow-offset)));
+  background: #fff;
+}
+
+@utility work-page-artwork {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1440 / 1630;
+
+  & svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Room for the card lift and its shadow, which the SVG would otherwise clip. */
+    overflow: visible;
+  }
+
+  &[data-leaving="true"] .card {
+    filter: none !important;
+    translate: none !important;
+    transition: none !important;
+    pointer-events: none;
+  }
+
+  & .card:focus-visible {
+    outline: 2px solid var(--works-ink);
+    outline-offset: 4px;
+  }
+}
+
+@utility site-footer {
+  position: relative;
+  width: 100%;
+  border-top: 1px solid color-mix(in oklab, var(--works-ink) 12%, transparent);
+  background: #fff;
+  color: var(--works-ink);
+  font-family: var(--display-font);
+}
+
+@utility site-footer-inner {
+  display: flex;
+  max-width: var(--site-max-width);
+  margin-inline: auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem clamp(1.8rem, calc(3.6 * var(--box-vw)), 4.35rem);
+  /* Keep the last line clear of a phone's home indicator and browser bar. */
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@utility site-footer-copy {
+  margin: 0;
+  font-size: 1rem;
+}
+
+@utility site-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@utility site-footer-link {
+  font-size: 1rem;
+  color: color-mix(in oklab, var(--works-ink) 72%, transparent);
+  transition: color 180ms ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--works-ink);
+  }
+}
+
+@utility site-footer-social {
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 760px) {
+  .site-footer-inner {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-inline: 1.25rem;
+  }
+}
+
+@utility about-page {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  background: var(--site-outer-light);
+}
+
+.about-page[data-about-open="false"] {
+  display: none;
+}
+
+.about-page[data-about-open="true"] {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  height: 100svh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+@utility about-page-box {
+  width: 100%;
+  max-width: var(--site-max-width);
+  min-height: 100%;
+  margin-inline: auto;
+  padding: calc(var(--header-height) + var(--page-header-gap)) 64px 64px;
+  background: var(--about-surface);
+}
+
+/* The supplied artwork carries 64 / 1312 of empty space above its content; pull it up under the header. */
+@utility about-mobile {
+  display: none;
+}
+
+@utility about-page-artwork-frame {
+  position: relative;
+  margin-top: calc(-64 / 1312 * 100%);
+}
+
+@utility about-page-artwork {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1312 / 1480;
+}
+
+/* Sits exactly over the "Download Resume" button drawn in the artwork (64, 1166, 200 × 54 in its 1440 × 1608 space). */
+@utility about-page-resume {
+  position: absolute;
+  top: 72.285%;
+  left: 4.444%;
+  width: 13.889%;
+  height: 3.324%;
+  border-radius: 14px;
+
+  &:focus-visible {
+    outline: 2px solid var(--works-ink);
+    outline-offset: 3px;
+  }
+}
+
+/* Over the "Say hello" pill drawn in the artwork (1189, 1431, 138 × 44 in its 1440 × 1608 space). */
+@utility about-page-hello {
+  position: absolute;
+  top: 88.55%;
+  left: 82.569%;
+  width: 9.583%;
+  height: 2.709%;
+  border-radius: 999px;
+  /* Lightens the button's own purple-to-rose colour in place, rather than laying a haze over it. */
+  backdrop-filter: brightness(1);
+  transition: backdrop-filter 220ms ease;
+
+  &:hover {
+    backdrop-filter: brightness(1.22) saturate(1.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--works-ink);
+    outline-offset: 3px;
+  }
+}
+
+.case-study-page[data-case-open="false"] {
+  display: none;
+}
+
+.case-study-page[data-case-open="true"] {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  height: 100svh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  background: #fff;
+  color: var(--works-ink);
+}
+
+/* The supplied case study artwork is 1440 wide with its own top spacing, so it sits flush under the header. */
+@utility case-study-page-box {
+  position: relative;
+  width: 100%;
+  max-width: var(--site-max-width);
+  min-height: 100%;
+  margin-inline: auto;
+  background: #fff;
+}
+
+/* Every theme is mounted and stacked so switching only toggles visibility: no reload, no blank frame. */
+@utility case-study-artworks {
+  display: grid;
+}
+
+@utility case-study-artwork {
+  display: block;
+  grid-area: 1 / 1;
+  width: 100%;
+  height: auto;
+
+  &[data-active="false"] {
+    visibility: hidden;
+  }
+}
+
+/* Zero-height sticky rail: the theme switch rides under the header while the artwork scrolls. */
+@utility case-study-controls {
+  position: sticky;
+  z-index: 2;
+  top: calc(var(--header-height) + var(--page-header-gap));
+  display: flex;
+  height: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-inline: clamp(1rem, calc(4 * var(--box-vw)), 4rem);
+  pointer-events: none;
+
+  & > * {
+    pointer-events: auto;
+  }
+}
+
+@utility case-study-switch {
+  margin-left: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 5.25rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid color-mix(in oklab, var(--works-ink) 14%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, #fff 90%, transparent);
+  box-shadow: 0 6px 20px -6px rgb(30 34 33 / 28%);
+  backdrop-filter: blur(12px);
+  color: var(--works-ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 250ms ease, border-color 250ms ease, color 250ms ease;
+
+  /* The switch takes on the theme it controls. */
+  &[data-dark="true"] {
+    border-color: rgb(255 255 255 / 18%);
+    background: color-mix(in oklab, #131313 92%, transparent);
+    color: #f5e9da;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #87407e;
+    outline-offset: 3px;
+  }
+}
+
+@utility case-study-switch-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  transition: color 250ms ease;
+
+  .case-study-switch[data-dark="false"] &:first-child,
+  .case-study-switch[data-dark="true"] &:nth-child(2) {
+    color: #fff;
+  }
+}
+
+@utility case-study-switch-thumb {
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  width: calc(50% - 0.25rem);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #62376c, #aa4868);
+  box-shadow: 0 2px 8px -2px rgb(98 55 108 / 55%);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  .case-study-switch[data-dark="true"] & {
+    transform: translateX(100%);
+  }
+}
+
+@utility play-page {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  background: var(--site-outer-light);
+  color: var(--works-ink);
+}
+
+.play-page[data-play-open="false"] {
+  display: none;
+}
+
+.play-page[data-play-open="true"] {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  height: 100svh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+@utility play-page-box {
+  width: 100%;
+  max-width: var(--site-max-width);
+  min-height: 100%;
+  margin-inline: auto;
+  padding: calc(var(--header-height) + var(--page-header-gap)) 64px 64px;
+  background: var(--about-surface);
+}
+
+@utility play-page-heading-artwork {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  aspect-ratio: 1312 / 98;
+}
+
+@utility play-page-collage {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 80px;
+}
+
+@utility connected-ui-section {
+  position: relative;
+  z-index: 40;
+  height: 220vh;
+  margin-top: -131svh;
+  pointer-events: none;
+
+  &[data-formation-active="true"] {
+    z-index: 60;
+  }
+}
+
+@utility connected-ui-sticky {
+  position: sticky;
+  /* The header is a solid bar, so the artwork lives in the screen below it. */
+  top: var(--header-height);
+  height: calc(100svh - var(--header-height));
+  overflow: hidden;
+  --ui-safe-y: 32px;
+  --ui-artwork-width: calc((100svh - var(--header-height) - (2 * var(--ui-safe-y))) * 1325 / 861);
+
+  @media (max-width: 1024px) {
+    --ui-artwork-width: min(
+      calc((100svh - var(--header-height) - (2 * var(--ui-safe-y))) * 1325 / 861),
+      calc(calc(100 * var(--box-vw)) - (2 * var(--ui-safe-y)))
+    );
+  }
+}
+
+@utility connected-ui-canvas {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@utility connected-ui-vector {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+  --ui-safe-x: 0px;
+
+  & svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: var(--ui-artwork-width);
+    height: auto;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: 1325 / 861;
+    transform: translate(-50%, -50%);
+  }
+
+  & svg > rect:first-child:not([data-stage]) {
+    display: none;
+  }
+
+  & [data-stage="0"] { opacity: var(--stage-0, 0); }
+  & [data-stage="1"] { opacity: var(--stage-1, 0); }
+  & [data-stage="2"] { opacity: var(--stage-2, 0); }
+  & [data-stage="3"] { opacity: var(--stage-3, 0); }
+  & [data-stage="4"] { opacity: var(--stage-4, 0); }
+  & [data-stage="5"] { opacity: var(--stage-5, 0); }
+  & [data-stage="6"] { opacity: var(--stage-6, 0); }
+  & [data-stage="7"] { opacity: var(--stage-7, 0); }
+  & [data-stage="8"] { opacity: var(--stage-8, 0); }
+  & [data-stage="9"] { opacity: var(--stage-9, 0); }
+  & [data-stage="10"] { opacity: var(--stage-10, 0); }
+  & [data-stage="11"] { opacity: var(--stage-11, 0); }
+  & [data-stage="12"] { opacity: var(--stage-12, 0); }
+  & [data-stage="13"] { opacity: var(--stage-13, 0); }
+  & [data-stage="14"] { opacity: var(--stage-14, 0); }
+  & [data-stage="15"] { opacity: var(--stage-15, 0); }
+  & [data-stage="16"] { opacity: var(--stage-16, 0); }
+  & [data-stage="17"] { opacity: var(--stage-17, 0); }
+  & [data-stage="18"] { opacity: var(--stage-18, 0); }
+  & [data-stage="19"] { opacity: var(--stage-19, 0); }
+  & [data-stage="20"] { opacity: var(--stage-20, 0); }
+  & [data-stage="21"] { opacity: var(--stage-21, 0); }
+  & [data-stage="22"] { opacity: var(--stage-22, 0); }
+  & [data-stage="23"] { opacity: var(--stage-23, 0); }
+  & [data-stage="24"] { opacity: var(--stage-24, 0); }
+  & [data-stage="25"] { opacity: var(--stage-25, 0); }
+  & [data-stage="26"] { opacity: var(--stage-26, 0); }
+  & [data-stage="27"] { opacity: var(--stage-27, 0); }
+  & [data-stage="28"] { opacity: var(--stage-28, 0); }
+  & [data-stage="29"] { opacity: var(--stage-29, 0); }
+}
+
+@utility connected-ui-sentence {
+  position: absolute;
+  z-index: 3;
+  left: calc(50% - (var(--ui-artwork-width) * 0.0351));
+  top: 50%;
+  width: max-content;
+  max-width: calc(var(--ui-artwork-width) * 0.495);
+  margin: 0;
+  white-space: nowrap;
+  text-align: center;
+  font-family: var(--display-font);
+  font-size: clamp(1.15rem, calc(1.85 * var(--box-vw)), 2.2rem);
+  font-weight: 400;
+  line-height: 1.32;
+  color: color-mix(in oklab, var(--foreground) 86%, transparent);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+@utility connected-ui-sentence-primary {
+  top: 50%;
+}
+
+@utility connected-ui-sentence-secondary {
+  top: 50%;
+}
+
+@utility connected-ui-sentence-line {
+  display: block;
+  white-space: nowrap;
+}
+
+@utility connected-ui-sentence-mobile-break {
+  display: none;
+}
+
+@utility connected-ui-sentence-word {
+  display: inline-block;
+  margin-right: 0.32em;
+  will-change: opacity, transform, filter;
+
+  &:last-child { margin-right: 0; }
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--display-font);
+  font-size: clamp(4.2rem, calc(6.3 * var(--box-vw)), 7.55rem);
+  font-weight: 400;
+  line-height: 1.03;
+  letter-spacing: 0;
+  color: var(--foreground);
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    height: 4.75rem;
+  }
+
+  .site-header-inner {
+    padding-inline: 1.25rem;
+  }
+
+  .primary-nav { gap: 1.4rem; }
+
+  .nav-link { font-size: 0.71rem; }
+
+  .intro-copy {
+    top: 15%;
+    left: 1.5rem;
+    right: 1.25rem;
+    transform: none;
+  }
+
+  .intro-kicker { font-size: 1.2rem; }
+
+  /* Name on one line, statement on exactly two. */
+  h1 {
+    font-size: min(calc(15 * var(--box-vw)), 3.6rem);
+    white-space: nowrap;
+  }
+
+  .intro-statement {
+    margin-top: 1.25rem;
+    max-width: none;
+    font-size: clamp(0.78rem, calc(4.4 * var(--box-vw)), 1.2rem);
+    white-space: nowrap;
+  }
+
+  .textile-sentence {
+    padding-inline: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .connected-ui-sentence {
+    font-size: clamp(0.82rem, calc(2.5 * var(--box-vw)), 0.95rem);
+  }
+
+
+  /* Text on top, artwork below it: neither the portrait nor the polygons reach back up into the copy.
+     The polygons are pinned to the face so they stay a few px short of it at every phone size. */
+  .portrait {
+    right: -18%;
+    bottom: -1%;
+    height: 50svh;
+    opacity: calc(var(--portrait-opacity) * 0.84);
+  }
+
+  .polygon-field {
+    top: 42svh;
+    right: auto;
+    /* Pinned to the face: the portrait's left edge is 118% - 42.4svh, and the cheek sits 28.4% of its
+       width in, so the field's visible right edge (86% of its width, the rest is clipped) lands 14px short of it. */
+    left: calc(118% - 30.36svh - 14px - 0.86 * 44 * var(--box-vw));
+    width: calc(44 * var(--box-vw));
+    clip-path: inset(0 14% 0 0);
+    opacity: calc(var(--polygon-opacity) * 0.9);
+  }
+
+  .connected-ui-sentence-mobile-break { display: block; }
+
+  :root {
+    --header-height: 4.75rem;
+    --page-header-gap: 16px;
+  }
+
+  .about-page-box,
+  .play-page-box {
+    padding-inline: 16px;
+    padding-bottom: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .connected-ui-sentence-primary {
+    width: calc(var(--ui-artwork-width) * 0.495);
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .polygon-field { animation: none; }
+  .artwork { transition: none; }
+}
+/*
+ * Page transitions. One push for every route change, whatever screen the visitor is on:
+ * the current screen slides up and out while the destination rises from the bottom. The header is
+ * part of each page's snapshot, so it travels with its page rather than animating on its own.
+ */
+:root {
+  --page-transition-duration: 3600ms;
+  --page-transition-easing: cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+@keyframes page-transition-out {
+  to {
+    transform: translate3d(0, -100svh, 0);
+  }
+}
+
+@keyframes page-transition-in {
+  from {
+    transform: translate3d(0, 100svh, 0);
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: 0s;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: var(--page-transition-duration);
+  animation-timing-function: var(--page-transition-easing);
+  animation-fill-mode: both;
+}
+
+::view-transition-old(root) {
+  animation-name: page-transition-out;
+}
+
+::view-transition-new(root) {
+  animation-name: page-transition-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
+
+/* Phones and tablets: the supplied artwork is too small to read at these widths, so About is set as real text,
+   the Work cards stack in one column, and the Play heading uses its enlarged version. */
+@media (max-width: 1024px) {
+  .work-page-artwork {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+
+  .work-page-box {
+    --listing-eyebrow-offset: calc(40 / 680 * min(100vw, 44rem));
+  }
+
+  .play-page-heading-artwork {
+    aspect-ratio: auto;
+  }
+
+  /* Phones: the supplied About artwork is too small to read, so the same content is set as real text. */
+  .about-page-artwork-frame {
+    display: none;
+  }
+
+  .about-mobile {
+    display: block;
+    max-width: 44rem;
+    margin: 0.5rem auto 0;
+    color: #1e2221;
+    font-family: "Plus Jakarta Sans", var(--sans-font);
+  }
+
+  .about-mobile-eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #87407e;
+  }
+
+  .about-mobile-portrait {
+    width: 100%;
+    max-width: 34rem;
+    aspect-ratio: 404 / 622;
+    margin: 0 auto 2rem;
+    border: 8px solid color-mix(in oklab, #aa4868 18%, white);
+    border-radius: 20px;
+    background-color: #eee;
+    background-repeat: no-repeat;
+    background-size: 147.9% auto;
+    background-position: 52.8% 36.6%;
+  }
+
+
+  .about-mobile-title {
+    margin: 0 0 1.1rem;
+    font-family: "Cormorant Garamond", var(--editorial-font);
+    font-size: 2.15rem;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #1e2221;
+  }
+
+  .about-mobile-body {
+    margin: 0 0 1.1rem;
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: #44444b;
+  }
+
+  .about-mobile-quote {
+    margin: 1.5rem 0 0;
+    padding-left: 1rem;
+    border-left: 2px solid color-mix(in oklab, #aa4868 22%, white);
+    font-size: 0.92rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.7;
+    color: #44444b;
+  }
+
+  .about-mobile-rule {
+    height: 1px;
+    margin: 2.5rem 0;
+    border: 0;
+    background: color-mix(in oklab, #aa4868 22%, white);
+  }
+
+  .about-mobile-resume {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.4rem 0 2.25rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #87407e;
+    border-radius: 14px;
+    background: #fff;
+    font-size: 0.9rem;
+    color: #1e2221;
+  }
+
+  .about-mobile-timeline {
+    margin: 0;
+    padding: 0 0 0 1.1rem;
+    border-left: 2px solid color-mix(in oklab, #aa4868 22%, white);
+    list-style: none;
+  }
+
+  .about-mobile-job {
+    position: relative;
+    padding: 0 0 1.5rem 1.1rem;
+  }
+
+  .about-mobile-job::before {
+    position: absolute;
+    top: 0.5em;
+    left: -0.2rem;
+    width: 7px;
+    height: 7px;
+    content: "";
+    border-radius: 50%;
+    background: #87407e;
+  }
+
+  .about-mobile-role {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .about-mobile-dates {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: #6b6b73;
+  }
+
+  .about-mobile-cta {
+    margin-top: 1.5rem;
+    padding: 1.75rem 1.5rem;
+    border: 1px solid color-mix(in oklab, #1e2221 16%, transparent);
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f4f1f6, #f8f0f2);
+  }
+
+  .about-mobile-cta-title {
+    margin: 0 0 0.6rem;
+    font-family: "Cormorant Garamond", var(--editorial-font);
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .about-mobile-cta-body {
+    margin: 0 0 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: #55555c;
+  }
+
+  .about-mobile-hello {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #7a4a7f, #aa5a76);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #f9f8f5;
+    transition: filter 220ms ease;
+  }
+
+  .about-mobile-hello:hover {
+    filter: brightness(1.22) saturate(1.05);
+  }
+}
+
+/* Phones: the theme switch stands upright (sun above moon) so it takes less width over the artwork. */
+@media (max-width: 760px) {
+  .case-study-switch {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    width: 2.6rem;
+    height: 5.25rem;
+  }
+
+  .case-study-switch-thumb {
+    top: 0.25rem;
+    right: 0.25rem;
+    bottom: auto;
+    left: 0.25rem;
+    width: auto;
+    height: calc(50% - 0.25rem);
+  }
+
+  .case-study-switch[data-dark="true"] .case-study-switch-thumb {
+    transform: translateY(100%);
+  }
+}

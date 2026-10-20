@@ -1,0 +1,45 @@
+# Roadmap
+
+- [x] Replace the entire PNG-based interface sequence with the uploaded SVG.
+- [x] Preserve every SVG shape, icon, line, frame, spacing, and relative position exactly.
+- [x] Use a colorful palette drawn from the portrait and textile artwork; retain neutral structural surfaces only where present.
+- [x] Exclude any decorative pixel field from the interface sequence.
+- [x] Form the five-icon Home rail first, then connectors and complete frames one by one from pixel rain.
+- [x] Verify the full sequence on desktop and mobile without clipping or blank gaps.
+- [x] Delay interface formation until the textile sentence has vanished and houndstooth is fading.
+- [x] Ensure each complete SVG frame or connector finishes forming before the next begins.
+- [x] Verify proportional full-composition fitting without width or height clipping.
+- [x] Keep forming UI components above the header, then return the header to the foreground after formation.
+- [x] Replace the composition with the final 1325 × 861 SVG and preserve its exact vectors.
+- [x] Scale the final SVG from viewport height with fixed 32px top and bottom margins.
+- [x] Form the frame attached to the Home rail's right-hand connector immediately after that connector.
+- [x] Form the next connector and horizontal circle card immediately after the Home-icon frame.
+- [x] Scale the UI SVG down proportionally on tablet and mobile without changing its desktop size.
+- [x] Sequence the two UI-screen sentences using the reference positions, with the three emphasized words in textile colors.
+- [x] Add the long, minimally glassy light card for the selected works section.
+- [x] Verify its top and bottom corners, headline, and responsive spacing in the live page.
+- [x] Make the selected-works card rise from below on scroll and Work-tab navigation.
+- [x] Fade the UI SVG completely before the selected-works card starts rising.
+- [x] Refine the selected-works heading size, line spacing, font pairing, and dark gradient emphasis.
+- [x] Blend the UI screen into the rising selected-works card with a gradual top-to-bottom fade.
+- [x] Apply Alice to the selected-works heading and strengthen its restrained palette gradient.
+- [x] Lock the selected-works heading to a five-word first line and two-word darker prism line.
+- [x] Make the Work tab skip earlier artwork and slide the selected-works card up directly.
+- [x] Make direct Work navigation enter more gradually using the reference site's restrained motion pacing.
+- [x] Make the M logo reveal only the homepage screen rising gradually from below.
+- [x] Slow and soften both direct Home and Work entrance transitions.
+- [x] Reduce the selected-works heading's maximum top spacing from 160px to 80px.
+- [x] Match the black space below the selected-works card to its left and right spacing.
+- [x] Add the uploaded About page unchanged as a dedicated section.
+- [x] Make About navigation use the same slow upward entrance as Home.
+- [x] Scale the complete About artwork proportionally with fixed 64px spacing on all four sides.
+- [x] Verify the exact About artwork and entrance on desktop and mobile.
+- [x] Lock the About page at the top during its slower entrance and use a translucent light header.
+- [x] Remove all upward page scrolling above About after its direct entrance.
+- [x] Move the header with the About page while the previous destination slides upward and out.
+- [x] Remove the extra gap between the About header and artwork.
+- [x] End normal page scrolling at the Work card's bottom border.
+- [x] Add the supplied collage as an independently scrolling Play destination.
+- [x] Match Play navigation to About's coordinated page and header transition.
+- [x] Add centered About-style headings and responsive About-page spacing to Play.
+- [x] Replace both Play text headings with the supplied intact SVG artwork.
