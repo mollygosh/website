@@ -41,6 +41,10 @@ export function WorkPage() {
       aria-label="Selected works: a glimpse into intentionally designed experiences"
     >
       <div className="work-page-box">
+        <div className="section-head">
+          <p className="section-eyebrow">Selected works</p>
+          <h2 className="section-title">A glimpse into intentionally designed experiences</h2>
+        </div>
         <WorkListing instance="page" />
       </div>
       <SiteFooter />

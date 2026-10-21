@@ -28,8 +28,8 @@ function AboutMobile() {
     <div className="about-mobile">
       <div className="about-mobile-portrait" role="img" aria-label="Molly Doshi" style={{ backgroundImage: `url(${aboutPortraitAsset.url})` }} />
 
-      <p className="about-mobile-eyebrow">Personal narrative</p>
-      <h2 className="about-mobile-title">A little glimpse into my curious world</h2>
+      <p className="section-eyebrow">Personal narrative</p>
+      <h2 className="section-title">A little glimpse into my curious world</h2>
       {NARRATIVE.map((paragraph) => (
         <p key={paragraph} className="about-mobile-body">
           {paragraph}
@@ -39,8 +39,8 @@ function AboutMobile() {
 
       <hr className="about-mobile-rule" />
 
-      <p className="about-mobile-eyebrow">Evolution and timeline</p>
-      <h2 className="about-mobile-title">My journey as a designer</h2>
+      <p className="section-eyebrow">Evolution and timeline</p>
+      <h2 className="section-title">My journey as a designer</h2>
       <p className="about-mobile-body">
         A journey across materials, mediums, and moments — from shaping textiles to shaping digital experiences.
       </p>

@@ -22,7 +22,7 @@ const scopeIds = (markup: string, instance: string) => {
 // On phones and tablets the 2 × 2 grid becomes one column of cards, with the heading scaled to fit above it.
 const NARROW_QUERY = "(max-width: 1024px)";
 const WIDE_EYEBROW = 1.5;
-const NARROW = { width: 680, cardX: 40, firstCardY: 160, cardGap: 28, bottom: 36, title: 0.62, titleY: -11, eyebrow: 1.35, eyebrowY: -92 };
+const NARROW = { width: 680, cardX: 40, firstCardY: 8, cardGap: 28, bottom: 36 };
 
 const applyLayout = (stage: HTMLElement, narrow: boolean) => {
   const svg = stage.querySelector("svg");
@@ -52,27 +52,24 @@ const applyLayout = (stage: HTMLElement, narrow: boolean) => {
     svg.setAttribute("height", wide.height);
     cards.forEach((card, index) => card.setAttribute("transform", wide.cards[index] ?? ""));
     // The eyebrow is drawn small beside the heading, so it is enlarged about its own centre here too.
-    headings.forEach((heading, index) =>
-      index === 0
-        ? heading.setAttribute("transform", `translate(720 105) scale(${WIDE_EYEBROW}) translate(-720 -105)`)
-        : heading.removeAttribute("transform"),
-    );
+    headings.forEach((heading, index) => {
+      heading.removeAttribute("display");
+      if (index === 0) heading.setAttribute("transform", `translate(720 105) scale(${WIDE_EYEBROW}) translate(-720 -105)`);
+      else heading.removeAttribute("transform");
+    });
     backdrop?.setAttribute("width", wide.width);
     backdrop?.setAttribute("height", wide.height);
     return;
   }
 
-  const { width, cardX, firstCardY, cardGap, bottom, title, titleY, eyebrow, eyebrowY } = NARROW;
+  const { width, cardX, firstCardY, cardGap, bottom } = NARROW;
   const height = firstCardY + cards.length * 594 + (cards.length - 1) * cardGap + bottom;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.setAttribute("width", String(width));
   svg.setAttribute("height", String(height));
   cards.forEach((card, index) => card.setAttribute("transform", `translate(${cardX} ${firstCardY + index * (594 + cardGap)})`));
-  // The eyebrow is scaled up on its own, otherwise it shrinks to a few pixels beside the title.
-  headings.forEach((item, index) => {
-    const [scale, y] = index === 0 ? [eyebrow, eyebrowY] : [title, titleY];
-    item.setAttribute("transform", `translate(${width / 2} ${y}) scale(${scale}) translate(-720 0)`);
-  });
+  // The heading and eyebrow are real text above the artwork on these screens (see .section-head), so hide the drawn ones.
+  headings.forEach((item) => item.setAttribute("display", "none"));
   backdrop?.setAttribute("width", String(width));
   backdrop?.setAttribute("height", String(height));
 };

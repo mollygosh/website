@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 
 import { SiteFooter } from "@/components/site-footer";
 
-import { collageAsset, playHeadingsAsset, playHeadingsMobileAsset } from "@/lib/assets";
+import { collageAsset, playHeadingsAsset } from "@/lib/assets";
 
 export function PlayPage() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -49,15 +49,15 @@ export function PlayPage() {
     >
       <div className="play-page-box">
         <div className="play-page-intro">
-          {/* Phones and tablets get the same artwork cropped to the heading with the small label enlarged, so it stays readable. */}
-          <picture>
-            <source media="(max-width: 1024px)" srcSet={playHeadingsMobileAsset.url} />
-            <img
-              className="play-page-heading-artwork"
-              src={playHeadingsAsset.url}
-              alt="Handcrafted Stories — A collection of my creative detours"
-            />
-          </picture>
+          <div className="section-head">
+            <p className="section-eyebrow">Handcrafted stories</p>
+            <h2 className="section-title">A collection of my creative detours</h2>
+          </div>
+          <img
+            className="play-page-heading-artwork"
+            src={playHeadingsAsset.url}
+            alt="Handcrafted Stories — A collection of my creative detours"
+          />
         </div>
         <img
           className="play-page-collage"

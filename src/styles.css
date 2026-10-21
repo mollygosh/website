@@ -513,6 +513,10 @@
 }
 
 /* The supplied artwork carries 64 / 1312 of empty space above its content; pull it up under the header. */
+@utility section-head {
+  display: none;
+}
+
 @utility about-mobile {
   display: none;
 }
@@ -1044,11 +1048,42 @@ h1 {
   }
 
   .work-page-box {
-    --listing-eyebrow-offset: calc(40 / 680 * min(100vw, 44rem));
+    padding-top: calc(var(--header-height) + var(--page-header-gap));
+  }
+
+  /* One label size and one heading size for Selected works, Handcrafted stories, Personal narrative and
+     Evolution and timeline. The drawn versions are hidden here and real text takes their place. */
+  .section-head {
+    display: block;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .section-eyebrow {
+    margin: 0 0 0.6rem;
+    font-family: "Plus Jakarta Sans", var(--sans-font);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #87407e;
+  }
+
+  .section-title {
+    margin: 0 0 1.1rem;
+    font-family: "Cormorant Garamond", var(--editorial-font);
+    font-size: clamp(1.7rem, 7vw, 2.15rem);
+    font-weight: 400;
+    line-height: 1.12;
+    color: #1e2221;
+  }
+
+  .section-head .section-title {
+    margin: 0;
   }
 
   .play-page-heading-artwork {
-    aspect-ratio: auto;
+    display: none;
   }
 
   /* Phones: the supplied About artwork is too small to read, so the same content is set as real text. */
@@ -1064,14 +1099,6 @@ h1 {
     font-family: "Plus Jakarta Sans", var(--sans-font);
   }
 
-  .about-mobile-eyebrow {
-    margin: 0 0 0.6rem;
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #87407e;
-  }
 
   .about-mobile-portrait {
     width: 100%;
@@ -1087,14 +1114,6 @@ h1 {
   }
 
 
-  .about-mobile-title {
-    margin: 0 0 1.1rem;
-    font-family: "Cormorant Garamond", var(--editorial-font);
-    font-size: 2.15rem;
-    font-weight: 400;
-    line-height: 1.1;
-    color: #1e2221;
-  }
 
   .about-mobile-body {
     margin: 0 0 1.1rem;
