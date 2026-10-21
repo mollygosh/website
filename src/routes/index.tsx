@@ -73,6 +73,11 @@ function Index() {
       );
 
       // Overlay destinations scroll on their own; the page behind them stays put.
+      // On phones the visible height changes as the browser toolbar slides away; whatever shows past the overlay's
+      // edge is the page background, which is dark. Match it to the destination so no dark line appears.
+      const pageColor = destination === "work" || destination === "case" ? "#fff" : destination === "home" ? "" : "var(--about-surface)";
+      document.documentElement.style.backgroundColor = pageColor;
+      document.body.style.backgroundColor = pageColor;
       document.documentElement.style.overflow = isOverlay ? "hidden" : "";
       document.body.style.overflow = isOverlay ? "hidden" : "";
       destinationRef.current = destination;
