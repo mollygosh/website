@@ -26,38 +26,6 @@ type ShapeData = {
   g: Uint8Array;
 };
 
-// The artwork is authored as checks, diamonds, zigzag, houndstooth. The patterns sit left to right as
-// checks (top left), houndstooth (bottom left), zigzag (bottom), diamonds (top right), so they are re-timed to
-// arrive in that order, and the zigzag and houndstooth build left to right within themselves.
-const GROUP_WINDOW: Record<number, [number, number]> = {
-  4: [0.34, 0.44],
-  3: [0.44, 0.86],
-  2: [0.86, 1.0],
-};
-const retimeLeftToRight = (json: RawShapeData): RawShapeData => {
-  const g = json.g ?? json.x.map(() => 0);
-  const span = new Map<number, [number, number]>();
-  json.t.forEach((t, i) => {
-    const group = g[i]!;
-    if (!(group in GROUP_WINDOW)) return;
-    const [lo, hi] = span.get(group) ?? [Infinity, -Infinity];
-    span.set(group, [Math.min(lo, t), Math.max(hi, t)]);
-  });
-  return {
-    ...json,
-    t: json.t.map((t, i) => {
-      const group = g[i]!;
-      const range = span.get(group);
-      const window = GROUP_WINDOW[group];
-      if (!range || !window) return t;
-      const along = (t - range[0]) / (range[1] - range[0] || 1);
-      // zigzag and houndstooth were authored right to left within themselves, so run them backwards
-      const ordered = group === 3 || group === 4 ? 1 - along : along;
-      return window[0] + ordered * (window[1] - window[0]);
-    }),
-  };
-};
-
 const toTyped = (json: RawShapeData): ShapeData => ({
   viewBox: json.viewBox,
   palette: json.palette,
@@ -82,11 +50,13 @@ const TALL_ASPECT = 1.25;
 // Each shape takes IN_DUR to settle after its start time, so the camera stays on a group until it has landed.
 const CAMERA_PATH: [number, number][] = [
   [0.0, 300],
-  [0.16, 260],
-  [0.26, 210],
-  [0.3, 700],
-  [0.467, 1240],
-  [1, 1240],
+  [0.17, 300],
+  [0.2, 1050],
+  [0.26, 1240],
+  [0.47, 1240],
+  [0.88, 700],
+  [0.93, 210],
+  [1, 210],
 ];
 const cameraCentre = (prog: number) => {
   for (let i = 1; i < CAMERA_PATH.length; i++) {
@@ -134,7 +104,7 @@ export function TextileScroll() {
     fetch("/textile-shapes.json")
       .then((res) => res.json())
       .then((json: RawShapeData) => {
-        if (alive) dataRef.current = toTyped(retimeLeftToRight(json));
+        if (alive) dataRef.current = toTyped(json);
       })
       .catch(() => undefined);
     return () => {
@@ -234,12 +204,12 @@ export function TextileScroll() {
             dx -= fall * (110 + seed * 240);
             dy += Math.sin(seed * 7.3) * fall * 45;
           } else if (group === 3) {
-            // zigzag: slides in from the left with a slight lift
-            dx -= fall * (120 + seed * 260);
+            // zigzag: slides in from the right with a slight lift
+            dx += fall * (120 + seed * 260);
             dy -= Math.sin(seed * 9.1) * fall * 40;
           } else if (group === 4) {
-            // houndstooth: drifts in from the left
-            dx -= fall * (90 + seed * 200);
+            // houndstooth: drifts in from the zigzag on its right
+            dx += fall * (90 + seed * 200);
             dy += Math.sin(seed * 11.7) * fall * 35;
           } else {
             // scatter + checks: rain down from above
