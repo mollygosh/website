@@ -128,52 +128,64 @@ function Index() {
     };
   }, []);
 
-  // The home scroll ends on the finished interface; scrolling on from there carries the visitor into Work.
+  // The home scroll ends on the finished interface; a deliberate extra scroll from there carries the visitor into Work.
+  // Momentum from reaching the bottom (trackpad inertia, a held key) must never count as that deliberate scroll.
   useEffect(() => {
     let pushed = 0;
     let touchStart = 0;
-    let arrivedAt = 0;
+    let lastScrollAt = 0;
+    let lastPushAt = 0;
+    let lastWheelAt = 0;
+    let gestureAtBottom = false;
 
     const atBottom = () => window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
     const onHome = () => destinationRef.current === "home";
+    const reset = () => {
+      pushed = 0;
+    };
 
     const push = (amount: number) => {
-      if (!onHome() || !atBottom()) {
-        pushed = 0;
-        arrivedAt = 0;
-        return;
-      }
-      // Momentum from reaching the bottom should not count as an intent to leave.
       const now = performance.now();
-      if (!arrivedAt) arrivedAt = now;
-      if (now - arrivedAt < 350) return;
+      if (!onHome() || !atBottom()) return reset();
+      // The page was still scrolling a moment ago: this is momentum, not a new gesture.
+      if (now - lastScrollAt < 700) return reset();
+      // A new gesture starts after a pause; otherwise keep adding to the current one.
+      if (now - lastPushAt > 400) pushed = 0;
+      lastPushAt = now;
 
       pushed += amount;
-      if (pushed > 60) {
+      if (pushed > 220) {
         pushed = 0;
-        arrivedAt = 0;
         goRef.current("work");
       }
     };
 
-    const onWheel = (event: WheelEvent) => push(Math.max(0, event.deltaY));
+    const onWheel = (event: WheelEvent) => {
+      const now = performance.now();
+      // A gesture only counts if it began after a pause, with the page already resting at the bottom. A wheel
+      // stream that was already running when the page reached the bottom is the same scroll, not a new one.
+      if (now - lastWheelAt > 250) gestureAtBottom = atBottom() && now - lastScrollAt > 250;
+      lastWheelAt = now;
+      if (gestureAtBottom) push(Math.max(0, event.deltaY));
+    };
     const onTouchStart = (event: TouchEvent) => {
       touchStart = event.touches[0]?.clientY ?? 0;
     };
     const onTouchMove = (event: TouchEvent) => {
       const y = event.touches[0]?.clientY ?? touchStart;
-      push(Math.max(0, touchStart - y) > 40 ? 61 : 0);
+      if (touchStart - y > 90) {
+        touchStart = y;
+        push(221);
+      }
     };
     const onKey = (event: KeyboardEvent) => {
-      if (["ArrowDown", "PageDown", " ", "End"].includes(event.key)) push(61);
+      if (event.repeat) return;
+      if (["ArrowDown", "PageDown", " "].includes(event.key)) push(221);
     };
     const onScroll = () => {
-      if (!atBottom()) {
-        pushed = 0;
-        arrivedAt = 0;
-      } else if (!arrivedAt) {
-        arrivedAt = performance.now();
-      }
+      lastScrollAt = performance.now();
+      gestureAtBottom = false;
+      if (!atBottom()) reset();
     };
 
     window.addEventListener("wheel", onWheel, { passive: true });

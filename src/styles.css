@@ -1265,8 +1265,8 @@ h1 {
   .connected-ui-sentence,
   .connected-ui-sentence-primary,
   .connected-ui-sentence-secondary {
-    top: auto;
-    bottom: calc(1.75rem + env(safe-area-inset-bottom, 0px));
+    top: var(--caption-top, auto);
+    bottom: auto;
     right: 3%;
     left: 3%;
     width: auto;

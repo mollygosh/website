@@ -207,7 +207,17 @@ export function ConnectedUiScroll() {
       const centre = lerp(Math.min(Math.max(cameraCentre(), half), VIEWBOX_WIDTH - half), VIEWBOX_WIDTH / 2, pullback);
       artworkScale = scale;
       artworkOffsetX = width / 2 - centre * scale;
-      artworkOffsetY = (stageHeight - VIEWBOX_HEIGHT * scale) / 2;
+      // While the camera follows the build the artwork fills the upper stage and the sentence sits at the bottom.
+      // At the pull-back the artwork is small, so the artwork and its sentence move together into the middle of
+      // the screen, the sentence directly under the diagram instead of far below it.
+      const artHeight = VIEWBOX_HEIGHT * scale;
+      const captionGap = 28;
+      const captionHeight = 60;
+      const partsOffsetY = (stageHeight - artHeight) / 2;
+      const groupOffsetY = Math.max(0, (height - (artHeight + captionGap + captionHeight)) / 2);
+      artworkOffsetY = lerp(partsOffsetY, groupOffsetY, pullback);
+      const captionTop = lerp(height - 28 - captionHeight, artworkOffsetY + artHeight + captionGap, pullback);
+      artwork.parentElement?.style.setProperty("--caption-top", `${captionTop}px`);
       svg.style.cssText = `position:absolute;top:0;left:0;width:${VIEWBOX_WIDTH}px;height:${VIEWBOX_HEIGHT}px;max-width:none;max-height:none;transform-origin:0 0;transform:translate(${artworkOffsetX}px,${artworkOffsetY}px) scale(${scale});`;
     };
 

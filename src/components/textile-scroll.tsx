@@ -177,7 +177,7 @@ export function TextileScroll() {
 
       const prog = progressRef.current;
       const [vw, vh] = data.viewBox;
-      // Wide screens fit the whole artwork (all four patterns) inside the screen. On tall, narrow screens the
+      // Wide screens fill the full width. On tall, narrow screens the
       // artwork fills the full height instead and the view pans across it as the patterns arrive (left to right).
       const tall = width / height < TALL_ASPECT;
       let scale: number;
@@ -193,8 +193,10 @@ export function TextileScroll() {
         offX = width / 2 - clamped * scale;
         offY = 0;
       } else {
-        scale = Math.min(width / vw, height / vh);
-        offX = (width - vw * scale) / 2;
+        // Full width on desktop. On wide, short windows the artwork is a little taller than the stage, so the
+        // top and bottom edges are trimmed equally rather than leaving empty margins at the sides.
+        scale = width / vw;
+        offX = 0;
         offY = (height - vh * scale) / 2;
       }
 
