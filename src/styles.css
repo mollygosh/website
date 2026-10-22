@@ -117,6 +117,10 @@
   }
 }
 
+.site-header:not([data-about-active="true"]) .site-header-inner {
+  max-width: none;
+}
+
 @utility site-header-inner {
   display: flex;
   max-width: var(--site-max-width);
