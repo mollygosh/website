@@ -21,7 +21,7 @@ const scopeIds = (markup: string, instance: string) => {
 
 // On phones and tablets the 2 × 2 grid becomes one column of cards, with the heading scaled to fit above it.
 const NARROW_QUERY = "(max-width: 1024px)";
-const WIDE_EYEBROW = 1.5;
+const WIDE_EYEBROW = 1.39;
 const NARROW = { width: 680, cardX: 40, firstCardY: 8, cardGap: 28, bottom: 36 };
 
 const applyLayout = (stage: HTMLElement, narrow: boolean) => {
