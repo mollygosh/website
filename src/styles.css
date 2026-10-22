@@ -513,6 +513,14 @@
 }
 
 /* The supplied artwork carries 64 / 1312 of empty space above its content; pull it up under the header. */
+@utility about-phone-art {
+  display: none;
+}
+
+@utility work-phone-art {
+  display: none;
+}
+
 @utility section-head {
   display: none;
 }
@@ -1274,5 +1282,63 @@ h1 {
     text-align: center;
     font-size: clamp(1rem, calc(4.6 * var(--box-vw)), 1.5rem);
     transform: none;
+  }
+}
+
+/* Phones: the supplied phone artwork for About and Work replaces the re-built layouts. Tablets keep those. */
+@media (max-width: 760px) {
+  .about-mobile {
+    display: none;
+  }
+
+  .about-phone-art,
+  .work-phone-art {
+    position: relative;
+    display: block;
+  }
+
+  .about-phone-art img,
+  .work-phone-art img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .about-phone-link,
+  .work-phone-link {
+    position: absolute;
+    display: block;
+    border-radius: 14px;
+  }
+
+  .about-phone-art {
+    margin-top: calc(-24px);
+  }
+
+  .work-page .section-head,
+  .work-page .work-page-artwork {
+    display: none;
+  }
+
+  .work-page-box {
+    padding-top: var(--header-height);
+  }
+}
+
+/* Phones: Work and About show supplied artwork that scales with the screen width. The Play heading is real text,
+   so it is sized from the same width, which keeps its label and heading the same size as theirs. */
+@media (max-width: 760px) {
+  .section-head .section-eyebrow {
+    font-size: calc(var(--eyebrow-art) * (100vw - 32px) / 375);
+    letter-spacing: 0.2em;
+  }
+
+  .section-head .section-title {
+    font-size: calc(28.9 * (100vw - 32px) / 375);
+    line-height: 1.12;
+  }
+
+  .section-head {
+    --eyebrow-art: 8.9;
   }
 }

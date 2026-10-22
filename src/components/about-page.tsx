@@ -137,6 +137,22 @@ export function AboutPage() {
             aria-label={`Say hello: email ${contactEmail}`}
           />
         </div>
+        <div className="about-phone-art">
+          <img src="/assets/about-me-mobile.svg" width={375} height={2203} alt="About Molly Doshi" />
+          <a
+            className="about-phone-link"
+            href={resumeAsset.url}
+            download={resumeAsset.filename}
+            aria-label="Download Molly Doshi's resume (PDF)"
+            style={{ left: `${(24 / 375) * 100}%`, top: `${(1437 / 2203) * 100}%`, width: `${(162 / 375) * 100}%`, height: `${(38 / 2203) * 100}%` }}
+          />
+          <a
+            className="about-phone-link"
+            href={`mailto:${contactEmail}`}
+            aria-label={`Say hello: email ${contactEmail}`}
+            style={{ left: `${(45 / 375) * 100}%`, top: `${(2113 / 2203) * 100}%`, width: `${(102 / 375) * 100}%`, height: `${(32 / 2203) * 100}%` }}
+          />
+        </div>
         <AboutMobile />
       </div>
       <SiteFooter />
