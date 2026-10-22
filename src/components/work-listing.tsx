@@ -84,8 +84,19 @@ export function WorkListing({ instance }: { instance: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    loadListing()
-      .then((text) => {
+    Promise.all([
+      loadListing(),
+      // The artwork's text uses these web fonts; wait for them so it never paints in a fallback font first.
+      Promise.race([
+        Promise.all([
+          document.fonts.load('52px "Cormorant Garamond"'),
+          document.fonts.load('600 13px "Plus Jakarta Sans"'),
+          document.fonts.load('400 14px "Plus Jakarta Sans"'),
+        ]),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]),
+    ])
+      .then(([text]) => {
         if (!cancelled) setMarkup(scopeIds(text, instance));
       })
       .catch(() => {
@@ -160,15 +171,7 @@ export function WorkListing({ instance }: { instance: string }) {
   };
 
   if (!markup) {
-    return (
-      <img
-        className="work-page-artwork"
-        src={caseStudyListing.url}
-        width={caseStudyListing.width}
-        height={caseStudyListing.height}
-        alt=""
-      />
-    );
+    return <div className="work-page-artwork" aria-hidden="true" style={{ aspectRatio: `${caseStudyListing.width} / ${caseStudyListing.height}` }} />;
   }
 
   return (
